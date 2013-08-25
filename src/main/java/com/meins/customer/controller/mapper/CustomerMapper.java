@@ -4,6 +4,7 @@
 package com.meins.customer.controller.mapper;
 
 import org.bson.types.ObjectId;
+import org.springframework.stereotype.Service;
 
 import com.meins.customer.db.model.CustomerModel;
 import com.meins.customer.domain.Customer;
@@ -15,6 +16,7 @@ import com.meins.customer.domain.Customer;
  * @author mkalsow
  * 
  */
+@Service
 public class CustomerMapper {
 
 	/**
@@ -45,7 +47,9 @@ public class CustomerMapper {
 	public CustomerModel mapCustomerToCustomerModel(Customer customer) {
 		CustomerModel customerModel = new CustomerModel();
 
-		customerModel.setId(new ObjectId(customer.getCustomerId()));
+		if (customer.getCustomerId() != null) {
+			customerModel.setId(new ObjectId(customer.getCustomerId()));
+		}
 		customerModel.setUser(customer.getUser());
 		customerModel.setPassword(customer.getPassword());
 		customerModel.setLastname(customer.getLastname());

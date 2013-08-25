@@ -3,9 +3,15 @@
  */
 package com.meins.customer.controller;
 
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+
 import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +34,7 @@ import com.meins.customer.domain.Customer;
  * 
  */
 @Controller
-@RequestMapping("/customer")
+@RequestMapping(value = "/customers")
 public class CustomerController {
 
 	private static Logger LOGGER = Logger.getLogger(CustomerController.class.getName());
@@ -37,21 +43,52 @@ public class CustomerController {
 
 	private CustomerMapper customerMapper;
 
-	@RequestMapping(value = "{customerId}", method = RequestMethod.GET)
-	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public @ResponseBody
-	Customer getCustomerById(@PathVariable String customerId) {
-		return customerMapper.mapCustomerModelToCustomer(daoConfig.getCustomerDao().find(new ObjectId(customerId)));
+	private CustomerResourceAssembler customerResourceAssembler;
+
+	@RequestMapping(value = "/{customerId}", method = RequestMethod.GET)
+	public ResponseEntity<CustomerResource> getCustomerById(@PathVariable String customerId) {
+		Customer customer = customerMapper.mapCustomerModelToCustomer(daoConfig.getCustomerDao().find(
+				new ObjectId(customerId)));
+		CustomerResource resource = customerResourceAssembler.toResource(customer);
+		resource.add(linkTo(methodOn(CustomerController.class).deleteCustomer(customer.getCustomerId())).withRel(
+				"delete"));
+		return new ResponseEntity<CustomerResource>(resource, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = { "/save" }, method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
+	@RequestMapping(method = RequestMethod.GET)
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public ResponseEntity<CustomerResource> listCustomer() {
+		Customer customer = new Customer();
+		customer.setCountry("blub");
+		CustomerResource resource = customerResourceAssembler.toResource(customer);
+		resource.add(linkTo(methodOn(CustomerController.class).deleteCustomer(customer.getCustomerId()))
+				.withRel("next"));
+		return new ResponseEntity<CustomerResource>(resource, HttpStatus.OK);
+	}
+
+	@RequestMapping(method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public @ResponseBody
-	String saveCustomer(@RequestBody Customer customer) {
+	ResponseEntity<Void> saveCustomer(@RequestBody Customer customer) {
 		LOGGER.info("create new customer");
 		CustomerModel customerModel = daoConfig.getCustomerDao().save(
 				customerMapper.mapCustomerToCustomerModel(customer));
-		return customerModel.getId().toString();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setLocation(linkTo(methodOn(getClass()).getCustomerById(customerModel.getId().toString())).toUri());
+		return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+	}
+
+	@RequestMapping(value = "/{customerId}", method = RequestMethod.DELETE, produces = "application/json", consumes = "application/json")
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public @ResponseBody
+	ResponseEntity<CustomerResource> deleteCustomer(@PathVariable String customerId) {
+		LOGGER.info("delete  customer");
+		// TODO
+		// Implementation
+		Customer customer = customerMapper.mapCustomerModelToCustomer(daoConfig.getCustomerDao().find(
+				new ObjectId(customerId)));
+		CustomerResource resource = customerResourceAssembler.toResource(customer);
+		return new ResponseEntity<CustomerResource>(resource, HttpStatus.OK);
 	}
 
 	@Autowired
@@ -63,4 +100,10 @@ public class CustomerController {
 	public void setCustomerMapper(CustomerMapper customerMapper) {
 		this.customerMapper = customerMapper;
 	}
+
+	@Autowired
+	public void setCustomerResourceAssembler(CustomerResourceAssembler customerResourceAssembler) {
+		this.customerResourceAssembler = customerResourceAssembler;
+	}
+
 }

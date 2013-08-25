@@ -36,6 +36,7 @@
 	</properties>
 
 	<dependencies>
+		<!-- for mondo db connection -->
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-mongodb</artifactId>
@@ -65,6 +66,13 @@
 			<artifactId>spring-test</artifactId>
 			<version>${spring.version}</version>
 			<scope>test</scope>
+		</dependency>
+
+		<!-- for hypermedia rest api -->
+		<dependency>
+			<groupId>org.springframework.hateoas</groupId>
+			<artifactId>spring-hateoas</artifactId>
+			<version>0.7.0.RELEASE</version>
 		</dependency>
 
 		<dependency>
@@ -101,7 +109,7 @@
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
-			<version>1.7.1</version>
+			<version>1.9.13</version>
 		</dependency>
 
 		<dependency>
@@ -129,6 +137,7 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+
 		</plugins>
 	</build>
 
