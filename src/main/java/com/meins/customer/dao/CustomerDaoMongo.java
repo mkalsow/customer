@@ -3,7 +3,11 @@
  */
 package com.meins.customer.dao;
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.support.MongoRepositoryFactory;
 import org.springframework.data.mongodb.repository.support.SimpleMongoRepository;
@@ -36,4 +40,12 @@ public class CustomerDaoMongo extends SimpleMongoRepository<CustomerModel, Objec
 		return super.findOne(customerId);
 	}
 
+	/**
+	 * Find all customer in mongo database with paging.
+	 */
+	public List<CustomerModel> findAllByPage(int page) {
+		// accessing the first page by a page size of 5
+		Page<CustomerModel> customerModelPage = super.findAll(new PageRequest(page, 5));
+		return customerModelPage.getContent();
+	}
 }

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import com.meins.customer.controller.ressource.CustomerResource;
 import com.meins.customer.domain.Customer;
 
 public class CustomerControllerIT {

@@ -1,13 +1,14 @@
 /*
  * Copyright 2013 Martin Kalsow.
  */
-package com.meins.customer.controller;
+package com.meins.customer.controller.ressource;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 import org.springframework.hateoas.mvc.ResourceAssemblerSupport;
 import org.springframework.stereotype.Component;
 
+import com.meins.customer.controller.CustomerController;
 import com.meins.customer.domain.Customer;
 
 /**

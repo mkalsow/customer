@@ -3,6 +3,8 @@
  */
 package com.meins.customer.dao;
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 
 import com.meins.customer.db.model.CustomerModel;
@@ -25,5 +27,10 @@ public interface CustomerDao {
 	 * Find a customer in mongo database with unique ObjectId from customer.
 	 */
 	public CustomerModel find(ObjectId customerId);
+
+	/**
+	 * Find all customer in mongo database with paging.
+	 */
+	public List<CustomerModel> findAllByPage(int age);
 
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright 2013 Martin Kalsow.
  */
-package com.meins.customer.controller;
+package com.meins.customer.controller.ressource;
 
 import org.springframework.hateoas.ResourceSupport;
 
