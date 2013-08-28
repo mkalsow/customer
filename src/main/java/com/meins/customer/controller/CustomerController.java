@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.meins.customer.controller.mapper.CustomerMapper;
@@ -94,7 +95,6 @@ public class CustomerController {
 	 * @return List of customer entities from page 0.
 	 */
 	@RequestMapping(method = RequestMethod.GET)
-	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public @ResponseBody
 	ResponseEntity<CustomerListResource> listCustomer() {
 		// find customer from page 0
@@ -113,9 +113,9 @@ public class CustomerController {
 	 *            Page from result.
 	 * @return List of customer entities from page 0.
 	 */
-	@RequestMapping(value = "/page={page}", method = RequestMethod.GET)
+	@RequestMapping(value = "/pages", method = RequestMethod.GET)
 	public @ResponseBody
-	ResponseEntity<CustomerListResource> listCustomerByPage(@PathVariable int page) {
+	ResponseEntity<CustomerListResource> listCustomerByPage(@RequestParam int page) {
 		// find customer from page
 		CustomerListResource customerResource = findCustomerByPage(page);
 
