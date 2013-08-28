@@ -35,7 +35,7 @@ public class MongoConfig extends AbstractMongoConfiguration {
 	private Environment env;
 
 	/**
-	 * set the spring environment.
+	 * Set the spring environment.
 	 */
 	@Autowired
 	public void setEnvironment(Environment environment) {
@@ -43,7 +43,7 @@ public class MongoConfig extends AbstractMongoConfiguration {
 	}
 
 	/**
-	 * creates mongo instance with host from spring environment.
+	 * Creates mongo instance with host from spring environment.
 	 */
 	@Bean
 	public Mongo mongo() throws UnknownHostException, MongoException {
@@ -51,7 +51,7 @@ public class MongoConfig extends AbstractMongoConfiguration {
 	}
 
 	/**
-	 * read database name from spring environment.
+	 * Read database name from spring environment.
 	 */
 	@Override
 	public String getDatabaseName() {

@@ -36,7 +36,6 @@ public class CustomerControllerIT {
 
 		// delete the customer using the link with rel delete
 		Link customerDeleteLink = customerResource.getLink("delete");
-		restTemplate.getForObject(customerDeleteLink.getHref(), CustomerResource.class);
-		assertEquals(HttpStatus.OK, response.getStatusCode());
+		restTemplate.delete(customerDeleteLink.getHref(), CustomerResource.class);
 	}
 }

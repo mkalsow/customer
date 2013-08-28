@@ -43,17 +43,34 @@ import com.meins.customer.domain.Customer;
 @RequestMapping(value = "/customers")
 public class CustomerController {
 
+	/**
+	 * Logger instance.
+	 */
 	private static Logger LOGGER = Logger.getLogger(CustomerController.class.getName());
 
+	/**
+	 * Factory for dao layer.
+	 */
 	private DaoConfig daoConfig;
 
+	/**
+	 * Customer related mapper methods.
+	 */
 	private CustomerMapper customerMapper;
 
+	/**
+	 * Class for mapping from an entity to a resource type and adding respective
+	 * links (hypermedia)
+	 */
 	private CustomerResourceAssembler customerResourceAssembler;
 
 	/**
-	 * Search Customer with customerId and get request. Example:
+	 * Search customer with customerId and get-request. Example:
 	 * http://localhost:8181/customer/customers/521909f70364f3df7147f613
+	 * 
+	 * @param customerId
+	 *            Unique id from customer.
+	 * @return customer entity.
 	 */
 	@RequestMapping(value = "/{customerId}", method = RequestMethod.GET)
 	public ResponseEntity<CustomerResource> getCustomerById(@PathVariable String customerId) {
@@ -73,6 +90,8 @@ public class CustomerController {
 	 * will be returned as a result. The list of customers can be can be paged
 	 * with hyperlinks from the response. Example:
 	 * http://localhost:8181/customer/customers
+	 * 
+	 * @return List of customer entities from page 0.
 	 */
 	@RequestMapping(method = RequestMethod.GET)
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -85,10 +104,14 @@ public class CustomerController {
 	}
 
 	/**
-	 * Search Customer without filter with get request. A maximum of 5 customer
+	 * Search Customer via page filter with get request. A maximum of 5 customer
 	 * will be returned as a result. The list of customers can be can be paged
 	 * with hyperlinks from the response. Example:
-	 * http://localhost:8181/customer/customers
+	 * http://localhost:8181/customer/customers/page=2
+	 * 
+	 * @param page
+	 *            Page from result.
+	 * @return List of customer entities from page 0.
 	 */
 	@RequestMapping(value = "/page={page}", method = RequestMethod.GET)
 	public @ResponseBody
@@ -99,11 +122,40 @@ public class CustomerController {
 		return new ResponseEntity<CustomerListResource>(customerResource, HttpStatus.OK);
 	}
 
+	/**
+	 * Save a new Customer in database with post-request.
+	 * 
+	 * @param customer
+	 *            New customer.
+	 * @return HTTP-Header with hyperlink to new created customer.
+	 * 
+	 */
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public @ResponseBody
 	ResponseEntity<Void> saveCustomer(@RequestBody Customer customer) {
 		LOGGER.info("create new customer");
+		CustomerModel customerModel = daoConfig.getCustomerDao().save(
+				customerMapper.mapCustomerToCustomerModel(customer));
+		// create new header with link to created customer
+		HttpHeaders headers = new HttpHeaders();
+		headers.setLocation(linkTo(methodOn(getClass()).getCustomerById(customerModel.getId().toString())).toUri());
+		return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+	}
+
+	/**
+	 * Update new Customer in database with put-request.
+	 * 
+	 * @param customer
+	 *            Updated customer.
+	 * @return HTTP-Header with hyperlink to updated customer.
+	 * 
+	 */
+	@RequestMapping(method = RequestMethod.PUT, produces = "application/json", consumes = "application/json")
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public @ResponseBody
+	ResponseEntity<Void> updateCustomer(@RequestBody Customer customer) {
+		LOGGER.info("update customer");
 		CustomerModel customerModel = daoConfig.getCustomerDao().save(
 				customerMapper.mapCustomerToCustomerModel(customer));
 		HttpHeaders headers = new HttpHeaders();
@@ -112,34 +164,32 @@ public class CustomerController {
 	}
 
 	/**
-	 * @param customer
+	 * Delete a customer with unique customer id an delete-request.
+	 * 
+	 * @param customerId
+	 *            unique customer id.
 	 * @return
 	 */
-	@RequestMapping(method = RequestMethod.PUT, produces = "application/json", consumes = "application/json")
-	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(value = "/{customerId}", method = RequestMethod.DELETE)
 	public @ResponseBody
-	ResponseEntity<Void> updateCustomer(@RequestBody Customer customer) {
-		LOGGER.info("create new customer");
-		CustomerModel customerModel = daoConfig.getCustomerDao().save(
-				customerMapper.mapCustomerToCustomerModel(customer));
-		HttpHeaders headers = new HttpHeaders();
-		headers.setLocation(linkTo(methodOn(getClass()).getCustomerById(customerModel.getId().toString())).toUri());
-		return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
-	}
-
-	@RequestMapping(value = "/{customerId}", method = RequestMethod.DELETE, produces = "application/json", consumes = "application/json")
-	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public @ResponseBody
-	ResponseEntity<CustomerResource> deleteCustomer(@PathVariable String customerId) {
-		LOGGER.info("delete  customer");
-		// TODO
-		// Implementation
+	ResponseEntity<HttpStatus> deleteCustomer(@PathVariable String customerId) {
+		LOGGER.info("delete customer");
+		// find customer object with customerId
 		Customer customer = customerMapper.mapCustomerModelToCustomer(daoConfig.getCustomerDao().find(
 				new ObjectId(customerId)));
-		CustomerResource resource = customerResourceAssembler.toResource(customer);
-		return new ResponseEntity<CustomerResource>(resource, HttpStatus.OK);
+		// delete customer
+		daoConfig.getCustomerDao().delete(customerMapper.mapCustomerToCustomerModel(customer));
+		return new ResponseEntity<HttpStatus>(HttpStatus.OK);
 	}
 
+	/**
+	 * Method to find customer in database and the page the results.
+	 * 
+	 * @param page
+	 *            page you are looking for.
+	 * 
+	 * @return List of customer from page.
+	 */
 	private CustomerListResource findCustomerByPage(int page) {
 		// find all customer from page
 		List<CustomerModel> customerModelList = daoConfig.getCustomerDao().findAllByPage(page);
@@ -149,7 +199,6 @@ public class CustomerController {
 		for (CustomerModel customerModel : customerModelList) {
 			customers
 					.add(customerResourceAssembler.toResource(customerMapper.mapCustomerModelToCustomer(customerModel)));
-
 		}
 
 		// create response resource and "next" link

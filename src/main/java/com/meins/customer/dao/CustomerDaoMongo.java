@@ -32,20 +32,36 @@ public class CustomerDaoMongo extends SimpleMongoRepository<CustomerModel, Objec
 				template);
 	}
 
-	/**
-	 * Find one customer in mongo database with unique objectId from customer.
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.meins.customer.dao.CustomerDao#find(org.bson.types.ObjectId)
 	 */
 	@Override
 	public CustomerModel find(ObjectId customerId) {
 		return super.findOne(customerId);
 	}
 
-	/**
-	 * Find all customer in mongo database with paging.
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.meins.customer.dao.CustomerDao#findAllByPage(int)
 	 */
 	public List<CustomerModel> findAllByPage(int page) {
 		// accessing the first page by a page size of 5
 		Page<CustomerModel> customerModelPage = super.findAll(new PageRequest(page, 5));
 		return customerModelPage.getContent();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.data.mongodb.repository.support.SimpleMongoRepository
+	 * #delete(java.lang.Object)
+	 */
+	@Override
+	public void delete(CustomerModel customerModel) {
+		super.delete(customerModel);
 	}
 }

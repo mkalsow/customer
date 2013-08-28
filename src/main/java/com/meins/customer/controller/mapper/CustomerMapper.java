@@ -20,7 +20,12 @@ import com.meins.customer.domain.Customer;
 public class CustomerMapper {
 
 	/**
-	 * map customer database object to customer client object.
+	 * Map a {@link CustomerModel} database object to {@link Customer} client
+	 * object.
+	 * 
+	 * @param customerModel
+	 *            customerModel object.
+	 * @return customer object.
 	 */
 	public Customer mapCustomerModelToCustomer(CustomerModel customerModel) {
 		Customer customer = new Customer();
@@ -42,7 +47,12 @@ public class CustomerMapper {
 	}
 
 	/**
-	 * map customer object from client to customer database object.
+	 * Map a {@link Customer} object from client to {@link CustomerModel}
+	 * database object.
+	 * 
+	 * @param customer
+	 *            Customer object.
+	 * @return CustomerModel database object.
 	 */
 	public CustomerModel mapCustomerToCustomerModel(Customer customer) {
 		CustomerModel customerModel = new CustomerModel();

@@ -14,7 +14,7 @@ import com.meins.customer.db.MongoConfig;
 
 /**
  * 
- * Class for configure data access object layer.
+ * Factory for configure data access object layer.
  * 
  * @author mkalsow
  * 
@@ -32,6 +32,8 @@ public class DaoConfig {
 
 	/**
 	 * Inject MongoRepositoryFactory class to connect to mongo database.
+	 * 
+	 * @return {@link MongoRepositoryFactory}
 	 */
 	@Bean
 	public MongoRepositoryFactory getMongoRepositoryFactory() {
@@ -43,7 +45,9 @@ public class DaoConfig {
 	}
 
 	/**
-	 * Inject CustomerDao class use data access obejct layer..
+	 * Inject CustomerDao class use data access object layer.
+	 * 
+	 * @return {@link CustomerDao}
 	 */
 	@Bean
 	public CustomerDao getCustomerDao() {

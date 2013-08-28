@@ -22,58 +22,58 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class CustomerModel {
 
 	/**
-	 * mongoDb primary key.
+	 * MongoDb primary key.
 	 */
 	@Id
 	private ObjectId id;
 
 	/**
-	 * unique username from customer.
+	 * Unique username from customer.
 	 */
 	private String user;
 
 	/**
-	 * password from customer. Password has to be "salt + hash".
+	 * Password from customer. Password has to be "salt + hash".
 	 */
 	private String password;
 
 	/**
-	 * lastname from customer.
+	 * Lastname from customer.
 	 */
 	private String lastname;
 
 	/**
-	 * forename from customer.
+	 * Forename from customer.
 	 */
 	private String forename;
 
 	/**
-	 * birthday from customer.
+	 * Birthday from customer.
 	 */
 	private Calendar birthday;
 
 	/**
-	 * country from customer.
+	 * Country from customer.
 	 */
 	private String country;
 
 	/**
-	 * city from customer.
+	 * City from customer.
 	 */
 	private String city;
 
 	/**
-	 * zipcode from customer.
+	 * Zipcode from customer.
 	 */
 	private String zipcode;
 
 	/**
-	 * street from customer.
+	 * Street from customer.
 	 */
 	private String street;
 
 	/**
-	 * housenumber from customer.
+	 * Housenumber from customer.
 	 */
 	private String housenumber;
 
