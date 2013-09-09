@@ -7,6 +7,8 @@ import java.util.Calendar;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -29,11 +31,15 @@ public class Customer {
 	/**
 	 * unique username from customer.
 	 */
+	@NotEmpty
+	@Length(max = 140)
 	private String user;
 
 	/**
 	 * password from customer.
 	 */
+	@NotEmpty
+	@Length(max = 140)
 	private String password;
 
 	/**

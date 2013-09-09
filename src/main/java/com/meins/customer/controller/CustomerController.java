@@ -8,23 +8,34 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
+import javax.validation.Valid;
 
 import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.meins.customer.controller.error.ValidationError;
 import com.meins.customer.controller.mapper.CustomerMapper;
 import com.meins.customer.controller.ressource.CustomerListResource;
 import com.meins.customer.controller.ressource.CustomerResource;
@@ -66,7 +77,18 @@ public class CustomerController {
 	private CustomerResourceAssembler customerResourceAssembler;
 
 	/**
-	 * Search customer with customerId and get-request. Example:
+	 * The message source is used to fetch localized error message for
+	 * validation errors.
+	 */
+	private MessageSource messageSource;
+
+	@Autowired
+	public CustomerController(MessageSource messageSource) {
+		this.messageSource = messageSource;
+	}
+
+	/**
+	 * Search customer with customerId and get request. Example:
 	 * http://localhost:8181/customer/customers/521909f70364f3df7147f613
 	 * 
 	 * @param customerId
@@ -133,7 +155,7 @@ public class CustomerController {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public @ResponseBody
-	ResponseEntity<Void> saveCustomer(@RequestBody Customer customer) {
+	ResponseEntity<Void> saveCustomer(@Valid @RequestBody Customer customer) {
 		LOGGER.info("create new customer");
 		CustomerModel customerModel = daoConfig.getCustomerDao().save(
 				customerMapper.mapCustomerToCustomerModel(customer));
@@ -206,6 +228,51 @@ public class CustomerController {
 		customerResource.add(linkTo(methodOn(CustomerController.class).listCustomerByPage(++page)).withRel("next"));
 		customerResource.setCustomerResourceList(customers);
 		return customerResource;
+	}
+
+	/**
+	 * Method for all calls with wrong parameters.
+	 * 
+	 * @param ex
+	 *            Exception to be thrown when validation on an argument fails.
+	 *            {@link MethodArgumentNotValidException}
+	 * @return {@link HttpStatus.BAD_REQUEST}
+	 */
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ResponseBody
+	public ValidationError processValidationError(MethodArgumentNotValidException ex) {
+		BindingResult result = ex.getBindingResult();
+		List<FieldError> fieldErrors = result.getFieldErrors();
+
+		return processFieldErrors(fieldErrors);
+	}
+
+	private ValidationError processFieldErrors(List<FieldError> fieldErrors) {
+		ValidationError validationError = new ValidationError();
+
+		for (FieldError fieldError : fieldErrors) {
+			String localizedErrorMessage = resolveLocalizedErrorMessage(fieldError);
+			validationError.addFieldError(fieldError.getField(), localizedErrorMessage);
+		}
+
+		return validationError;
+	}
+
+	private String resolveLocalizedErrorMessage(FieldError fieldError) {
+		Locale currentLocale = LocaleContextHolder.getLocale();
+		String localizedErrorMessage = messageSource.getMessage(fieldError, currentLocale);
+
+		// If the message was not found, return the most accurate field error
+		// code instead.
+		// You can remove this check if you prefer to get the default error
+		// message.
+		if (localizedErrorMessage.equals(fieldError.getDefaultMessage())) {
+			String[] fieldErrorCodes = fieldError.getCodes();
+			localizedErrorMessage = fieldErrorCodes[0];
+		}
+
+		return localizedErrorMessage;
 	}
 
 	@Autowired

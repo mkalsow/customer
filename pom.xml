@@ -19,6 +19,12 @@
 		</developer>
 	</developers>
 
+	<scm>
+		<connection>scm:git@github.com:mkalsow/customer.git</connection>
+		<developerConnection>scm:git@github.com:mkalsow/customer.git</developerConnection>
+		<url>scm:git@github.com:mkalsow/customer.git</url>
+	</scm>
+
 	<repositories>
 		<repository>
 			<id>core</id>
@@ -120,10 +126,23 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>5.0.1.Final</version>
+		</dependency>
+
+		<dependency>
 			<!-- Embedded Mongo -->
 			<groupId>de.flapdoodle.embedmongo</groupId>
 			<artifactId>de.flapdoodle.embedmongo</artifactId>
 			<version>1.16</version>
+		</dependency>
+
+		<dependency>
+			<!-- Otto JsonHome -->
+			<groupId>de.otto</groupId>
+			<artifactId>jsonhome-spring</artifactId>
+			<version>0.3.3</version>
 		</dependency>
 
 	</dependencies>
